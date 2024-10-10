@@ -1,6 +1,8 @@
 
 using System;
+using Unity.Mathematics;
 using UnityEngine;
+using Quaternion = System.Numerics.Quaternion;
 
 namespace Enemy
 {
@@ -12,8 +14,10 @@ namespace Enemy
         protected Vector2 _goal;
         protected Vector2 _finalDestination;
         protected int _wayCont;
-        [SerializeField] protected GameObject[] wayPoints;
         protected Vector2 _dir;
+        [SerializeField] protected GameObject[] wayPoints;
+        [SerializeField] protected bool canFlip;
+        protected float _angle;
         protected void SetUpEnemy()
         {
             wayPoints = WayPoints.WayPointMother;
@@ -25,6 +29,7 @@ namespace Enemy
 
         protected void MoveToWay()
         {
+
             if (!gameObject.transform.position.Equals(_goal))
             {
                 gameObject.transform.position = Vector2.MoveTowards(gameObject.transform.position, _goal,
@@ -39,9 +44,10 @@ namespace Enemy
                 }
                 _wayCont++;
                 _goal = wayPoints[_wayCont + 1].transform.position;
-                _dir = (Vector2)gameObject.transform.position - _goal;
-                Debug.Log(Mathf.Atan2(_dir.y, _dir.y));
-                
+                if (!canFlip) return;
+                _angle = Mathf.Atan2(_goal.y-gameObject.transform.position.y, _goal.x-gameObject.transform.position.x)*(180/Mathf.PI)-90;
+                gameObject.transform.rotation = UnityEngine.Quaternion.Euler(0,0,_angle);
+
             }
         }
     }
